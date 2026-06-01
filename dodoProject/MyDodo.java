@@ -573,7 +573,7 @@ public class MyDodo extends Dodo
      */
     public int countEggsInRow() {
         int eggCount = 0;
-        
+
         if (onEgg()) {
             eggCount++;
         }
@@ -584,8 +584,68 @@ public class MyDodo extends Dodo
             }
         }
         goBackToStartOfRowAndFaceBack();
-        
+
         showCompliment("Er zijn " + eggCount + " eieren in deze rij!");
         return eggCount;
+    }
+
+    /**
+     * Test layTrailOfEggs 
+     * 
+     * <p> asks for distance
+     * <p> lays eggs in current direction till cant move
+     * 
+     *      Final situation:
+     *          <p> Lays trail of eggs in current direction
+     *          
+     */
+    public void layTrailOfEggs( int n ) {
+        int eggsLayed = 0;
+        while ( eggsLayed < n && canMove()) {
+            move();
+            layEgg();
+            eggsLayed++;
+        }
+        System.out.println ("Layed " + eggsLayed +" eggs.");
+    }
+
+    /**
+     * Test countEggsInWorld
+     * 
+     * <p> walks to the end of the row
+     * <p> counts the eggs
+     * <p> goes to an other row
+     * <p> repeats till end of the world
+     * <p> shows how many eggs
+     * 
+     *      Final situation:
+     *          <p> goes through every row
+     *          <p> counts every egg
+     *          <p> gives the amount of eggs counted
+     *          
+     */
+    public void countEggsInWorld(){
+        int eggCount = 0;
+        int y, x;
+        y = getY();
+        x = getX();
+        while(getY() < getWorld().getHeight() - 1){
+            if (onEgg()) {
+                eggCount++;
+            }
+            while (canMove()) {
+                move();
+                if (onEgg()) {
+                    eggCount++;
+                }
+            }
+            goBackToStartOfRowAndFaceBack();
+            setDirection(SOUTH);
+            move();
+            setDirection(EAST);
+        }
+        showCompliment("Totaal: " + eggCount + " eieren!");
+        goToLocation(x, y);
+        setDirection(EAST);
     }
 }
