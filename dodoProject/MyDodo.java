@@ -434,17 +434,17 @@ public class MyDodo extends Dodo
 
     public void eggTrailToNest() {
         while (!onNest()) {
-            if (eggAhead() || nestAhead()) {
+            if (eggAhead() || nestAhead()){
                 move();
-            } else if (checkForEggs() || checkForNests()) {
+            } else if (checkForEggs() || checkForNests()){
                 turnRight();
                 move();
-            } else {
+            } else{
                 turnLeft();
                 move();
             }
 
-            if (onEgg()) {
+            if (onEgg()){
                 pickUpEgg();
             }
         }
@@ -514,25 +514,25 @@ public class MyDodo extends Dodo
      *          <p> dodo is on the certain x & y place.
      */
 
-    public boolean locationReached(int x, int y) {
+    public boolean locationReached(int x, int y){
         return getX() == x && getY() == y;
     }
 
-    public void goToLocation(int coordX, int coordY) {
-        if (!validCoordinates(coordX, coordY)) {
+    public void goToLocation(int coordX, int coordY){
+        if (!validCoordinates(coordX, coordY)){
             return;
         }
-        while (!locationReached(coordX, coordY)) {
-            if (getX() < coordX) {
+        while (!locationReached(coordX, coordY)){
+            if (getX() < coordX){
                 setDirection(EAST);
                 move();
-            } else if (getX() > coordX) {
+            } else if (getX() > coordX){
                 setDirection(WEST);
                 move();
-            } else if (getY() < coordY) {
+            } else if (getY() < coordY){
                 setDirection(SOUTH);
                 move();
-            } else if (getY() > coordY) {
+            } else if (getY() > coordY){
                 setDirection(NORTH);
                 move();
             }
@@ -552,8 +552,8 @@ public class MyDodo extends Dodo
      *          
      */
 
-    public boolean validCoordinates(int x, int y) {
-        if (x < 0 || x >= getWorld().getWidth() || y < 0 || y >= getWorld().getHeight()) {
+    public boolean validCoordinates(int x, int y){
+        if (x < 0 || x >= getWorld().getWidth() || y < 0 || y >= getWorld().getHeight()){
             showError("Invalid coordinates");
             return false;
         } else {
@@ -571,15 +571,15 @@ public class MyDodo extends Dodo
      * 
      * <p> return number of eggs in the row
      */
-    public int countEggsInRow() {
+    public int countEggsInRow(){
         int eggCount = 0;
 
-        if (onEgg()) {
+        if (onEgg()){
             eggCount++;
         }
-        while (canMove()) {
+        while (canMove()){
             move();
-            if (onEgg()) {
+            if (onEgg()){
                 eggCount++;
             }
         }
@@ -599,9 +599,9 @@ public class MyDodo extends Dodo
      *          <p> Lays trail of eggs in current direction
      *          
      */
-    public void layTrailOfEggs( int n ) {
+    public void layTrailOfEggs(int n){
         int eggsLayed = 0;
-        while ( eggsLayed < n && canMove()) {
+        while ( eggsLayed < n && canMove()){
             move();
             layEgg();
             eggsLayed++;
@@ -629,23 +629,162 @@ public class MyDodo extends Dodo
         int y, x;
         y = getY();
         x = getX();
-        while(getY() < getWorld().getHeight() - 1){
+        while(getY() <= getWorld().getHeight() - 1){ //loopt door alle rijen
             if (onEgg()) {
                 eggCount++;
             }
-            while (canMove()) {
+            while (canMove()) { //beweegt naar einde van de rij
                 move();
                 if (onEgg()) {
                     eggCount++;
                 }
             }
-            goBackToStartOfRowAndFaceBack();
-            setDirection(SOUTH);
-            move();
-            setDirection(EAST);
+            if (getY() < getWorld().getHeight() - 1){
+                goBackToStartOfRowAndFaceBack();
+                setDirection(SOUTH);
+                move();
+                setDirection(EAST);
+            } else {
+                break; //stopt anders blijft hij doorgaan wanneer het niet kan
+            }
         }
         showCompliment("Totaal: " + eggCount + " eieren!");
-        goToLocation(x, y);
+        goToLocation(x, y); //gaat terug naar y,x van start
         setDirection(EAST);
+    }
+
+    /** 
+     * Test findRowWithMostEggs
+     * 
+     * <p> Dodo goes through every row
+     * <p> Dodo counts eggs
+     * <p> System prints out the row with most eggs
+     * <p> Dodo goes back to start position
+     * 
+     *      Final situation:
+     *          <p> Dodo goes through every row of the world, counts the eggs
+     *          <p> System prints out the row with most eggs
+     *          <p> Dodo goes to the start position
+     */
+
+    public void findRowWithMostEggs(){
+        int x = getX();
+        int y = getY();
+        int maxEggs = 0;
+        int bestRow = 0;
+        goToLocation(0, 0); //start pos left top corner
+        setDirection(EAST);
+        for (int row = 0; row < getWorld().getHeight(); row++){ //for every row thats lower than height
+            int eggsInRow = countEggsInRow();
+            if (eggsInRow > maxEggs) {
+                maxEggs = eggsInRow;
+                bestRow = row;
+            }
+            if (row < getWorld().getHeight() - 1){
+                setDirection(SOUTH);
+                move();
+                setDirection(EAST);
+            }
+        }
+        System.out.println("Rij met de meeste eieren: " + bestRow + " (" + maxEggs + " eieren)");
+        goToLocation(x, y); //back to start position
+        setDirection(EAST);
+    }
+
+    /**
+     * Test buildMonumentOfEggs
+     * 
+     * <p> Dodo lays 1 more egg(s) every row
+     * <p> Dodo lays the eggs from the position it is in
+     * 
+     *      Final Situation:
+     *          <p> Dodo lays a monument of eggs in every row + 1
+     *          <p> Dodo starts from starting position
+     */
+    public void buildMonumentOfEggs(){
+        int startX = getX() -1;
+        int startY = getY();
+        int eggsToLay = 1;
+        for (int row = startY; row < getWorld().getHeight(); row++){ //for every row and row is smaller than world height
+            goToLocation(startX, row);
+            setDirection(EAST);
+            layTrailOfEggs(eggsToLay); //fills in the parameter automatically
+            eggsToLay++; //adds 1 egg to lay
+            goBackToStartOfRowAndFaceBack();
+            if (row < getWorld().getHeight() - 1){
+                setDirection(SOUTH);
+                move();
+                setDirection(EAST);
+            }
+        }
+        goToLocation(startX +1, startY); //goes back to start
+        setDirection(EAST);
+    }
+
+    /**
+     * Test heavyMonumentOfEggs
+     * 
+     * <p> Dodo lays eggs twice as much eggs as the last row
+     * <p> Dodo lays eggs from the position it is in
+     * 
+     *      Final situation:
+     *          <p> Dodo lays a heavy monument
+     *          <p> Dodo lays twice as many eggs as the last row
+     */
+    public void heavyMonumentOfEggs(){
+        int startX = getX() -1;
+        int startY = getY();
+        int eggsToLay = 1;
+        for (int row = startY; row < getWorld().getHeight(); row++){ //for every row and row is smaller than world height
+            goToLocation(startX, row);
+            setDirection(EAST);
+            if (canLayEgg()){
+                layEgg();
+                layTrailOfEggs(eggsToLay - 1); //already layed egg so -1 //parameter already filled
+                eggsToLay *= 2; //doubles the amount of eggs for the next row
+                goBackToStartOfRowAndFaceBack();
+                if (row < getWorld().getHeight() - 1){
+                    setDirection(SOUTH);
+                    move();
+                    setDirection(EAST);
+                }
+            }
+            goToLocation(startX, startY);
+            setDirection(EAST);
+        }
+    }
+
+    /**
+     * Test buildPyramidOfEggs
+     * 
+     * <p> Dodo builds a pyramid of eggs
+     * <p> Dodo does this from the place he is at (startPos)
+     * 
+     *      Final sitation:
+     *          <p> Dodo lays eggs from the place he is at
+     *          <p> Eggs form a pyramid
+     */
+    public void buildPyramidOfEggs(){
+        int startX = getX();
+        int startY = getY();
+        int eggsToLay = 1;
+        for (int row = startY; row < getWorld().getHeight(); row++){ //for every row and row is smaller than world height
+            int offset = row - startY; //how many to move left
+            goToLocation(startX - offset, row);
+            setDirection(EAST);
+            if (canLayEgg()){
+                layEgg();
+                layTrailOfEggs(eggsToLay - 1); //already layed egg so -1 //parameter already filled
+                eggsToLay += 2; //adds 2 eggs
+                goBackToStartOfRowAndFaceBack();
+                if (row < getWorld().getHeight() - 1){
+                    setDirection(SOUTH);
+                    move();
+                    setDirection(EAST);
+                }
+            }
+            goToLocation(startX, startY);
+            setDirection(EAST);
+        }
     }
 }
