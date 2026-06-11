@@ -787,4 +787,96 @@ public class MyDodo extends Dodo
             setDirection(EAST);
         }
     }
+
+    /**
+     * Test averageEggsPerRow
+     * 
+     * <p> Initial: Dodo is linksboven in het venster, kijkt naar het oosten.
+     * 
+     *      Final situation:
+     *          <p> Dodo gaat door elke rij
+     *          <p> Telt alle eieren
+     *          <p> Berekent het gemiddelde per rij
+     *          <p> Geeft het gemiddelde terug als double
+     */
+
+    public double averageEggsPerRow(){
+        int totalEggs = 0;
+        int totalRows = getWorld().getHeight();
+        goToLocation(0, 0);
+        setDirection(EAST);
+        for (int row = 0; row < totalRows; row++){
+            totalEggs += countEggsInRow(); // telt eieren per rij, gaat terug naar start rij
+            if (row < totalRows - 1){
+                setDirection(SOUTH);
+                move();
+                setDirection(EAST);
+            }
+        }
+        double average = (double) totalEggs / totalRows; // typecasting naar double
+        showCompliment("Gemiddeld aantal eieren per rij: " + average);
+        return average;
+    }
+
+    /**
+     * Test parityBit
+     * 
+     * <p> Dodo is linksboven, kijkt naar het oosten.
+     * 
+     *      Final situation:
+     *          <p> Elke rij met oneven aantal eieren krijgt een gouden ei
+     *          <p> Elke kolom met oneven aantal eieren krijgt een gouden ei
+     */
+    public void parityBit(){
+        int totalRows = getWorld().getHeight();
+        int totalCols = getWorld().getWidth();
+        for (int row = 0; row < totalRows; row++){ //rijen controleren
+            goToLocation(0, row);
+            setDirection(EAST);
+            int eggsInRow = countEggsInRow(); //gaat terug naar start van rij
+            if (eggsInRow % 2 != 0){ //oneven aantal eieren
+                //ga naar het einde van de rij en leg gouden ei
+                goToLocation(totalCols - 1, row);
+                layGoldEgg();
+            }
+        }
+        for (int col = 0; col < totalCols; col++){ //kolommen controleren
+            goToLocation(col, 0);
+            setDirection(SOUTH);
+            int eggsInCol = countEggsInColumn(); //zie hieronder
+            if (eggsInCol % 2 != 0){ //oneven aantal eieren
+                goToLocation(col, totalRows - 1);
+                layGoldEgg();
+            }
+        }
+        goToLocation(0, 0);
+        setDirection(EAST);
+    }
+
+    /**
+     * Helper paritybit: countEggsInColumn
+     * 
+     * <p> Dodo staat bovenaan een kolom, kijkt naar het zuiden.
+     * 
+     *      Final situation:
+     *          <p> Dodo is terug bovenaan de kolom
+     *          <p> Geeft aantal eieren in de kolom terug
+     */
+    public int countEggsInColumn(){
+        int eggCount = 0;
+        int startX = getX();
+        int startY = getY();
+        if (onEgg()){
+            eggCount++; //counts eggs
+        }
+        while (canMove()){
+            move();
+            if (onEgg()){
+                eggCount++;
+            }
+        }
+        goToLocation(startX, startY);
+        setDirection(SOUTH);
+        return eggCount;
+    }
 }
