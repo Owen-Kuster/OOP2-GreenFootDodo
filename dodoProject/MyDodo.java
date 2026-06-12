@@ -790,8 +790,10 @@ public class MyDodo extends Dodo
 
     /**
      * Test averageEggsPerRow
+     * Test getIncorrectRowNr
      * 
      * <p> Initial: Dodo is linksboven in het venster, kijkt naar het oosten.
+     * <p> Dodo starts at top-left, facing east.
      * 
      *      Final situation:
      *          <p> Dodo gaat door elke rij
@@ -806,77 +808,102 @@ public class MyDodo extends Dodo
         goToLocation(0, 0);
         setDirection(EAST);
         for (int row = 0; row < totalRows; row++){
-            totalEggs += countEggsInRow(); // telt eieren per rij, gaat terug naar start rij
+            totalEggs += countEggsInRow(); //counts eggs and goes to start of row
             if (row < totalRows - 1){
                 setDirection(SOUTH);
                 move();
                 setDirection(EAST);
             }
         }
-        double average = (double) totalEggs / totalRows; // typecasting naar double
+        double average = (double) totalEggs / totalRows; //typecasting to double
         showCompliment("Gemiddeld aantal eieren per rij: " + average);
         return average;
     }
 
     /**
-     * Test parityBit
+     * Test getIncorrectRowNr
      * 
-     * <p> Dodo is linksboven, kijkt naar het oosten.
+     * <p> Dodo starts at top-left, facing east.
      * 
      *      Final situation:
-     *          <p> Elke rij met oneven aantal eieren krijgt een gouden ei
-     *          <p> Elke kolom met oneven aantal eieren krijgt een gouden ei
+     *          <p> Returns the incorrect row number
+     *          <p> Returns -1 if no error found
      */
-    public void parityBit(){
-        int totalRows = getWorld().getHeight();
-        int totalCols = getWorld().getWidth();
-        for (int row = 0; row < totalRows; row++){ //rijen controleren
-            goToLocation(0, row);
-            setDirection(EAST);
-            int eggsInRow = countEggsInRow(); //gaat terug naar start van rij
-            if (eggsInRow % 2 != 0){ //oneven aantal eieren
-                //ga naar het einde van de rij en leg gouden ei
-                goToLocation(totalCols - 1, row);
-                layGoldEgg();
+    public int getIncorrectRowNr(){
+        for (int row = 0; row < getWorld().getHeight(); row++){
+            int eggsInRow = countEggsInRow(); //count eggs in this row
+            if (eggsInRow % 2 != 0){ // uneven = error found
+                return row; //return incorrect row number
+            }
+            if (row < getWorld().getHeight() - 1){
+                turnRight(); //face south
+                move(); //move one row down
+                turnLeft(); //face east again
             }
         }
-        for (int col = 0; col < totalCols; col++){ //kolommen controleren
-            goToLocation(col, 0);
-            setDirection(SOUTH);
-            int eggsInCol = countEggsInColumn(); //zie hieronder
-            if (eggsInCol % 2 != 0){ //oneven aantal eieren
-                goToLocation(col, totalRows - 1);
-                layGoldEgg();
-            }
-        }
-        goToLocation(0, 0);
-        setDirection(EAST);
+        return -1; //no error found
     }
 
     /**
-     * Helper paritybit: countEggsInColumn
+     * Test getIncorrectColNr
      * 
-     * <p> Dodo staat bovenaan een kolom, kijkt naar het zuiden.
+     * <p> Dodo starts at top-left, facing east.
      * 
      *      Final situation:
-     *          <p> Dodo is terug bovenaan de kolom
-     *          <p> Geeft aantal eieren in de kolom terug
+     *          <p> Returns the incorrect column number
+     *          <p> Returns -1 if no error found
      */
-    public int countEggsInColumn(){
-        int eggCount = 0;
-        int startX = getX();
-        int startY = getY();
-        if (onEgg()){
-            eggCount++; //counts eggs
-        }
-        while (canMove()){
-            move();
-            if (onEgg()){
-                eggCount++;
+    public int getIncorrectColNr(){
+        for (int col = 0; col < getWorld().getWidth(); col++){
+            turnRight(); //face south to count column
+            int eggsInCol = countEggsInRow(); //use countEggsInRow
+            turnLeft(); //face east again
+            if (eggsInCol % 2 != 0){ //uneven is error found
+                return col; //return incorrect column number
+            }
+            if (col < getWorld().getWidth() - 1){
+                move(); //move one column to the right
             }
         }
-        goToLocation(startX, startY);
-        setDirection(SOUTH);
-        return eggCount;
+        return -1; //no error found
+    }
+
+    /**
+     * Test gotoIncorrectBit
+     * 
+     * <p> Dodo searches for the incorrect row and column
+     * <p> Dodo goes to the incorrect cell
+     * 
+     *      Final situation:
+     *          <p> Dodo is standing on the incorrect cell
+     */
+    public void gotoIncorrectBit(){
+        int incorrectRow = getIncorrectRowNr(); //search the incorrect row
+        int incorrectCol = getIncorrectColNr(); //search the incorrect column
+        goToLocation(incorrectCol, incorrectRow); //go to the intersection is the incorrect cell
+    }
+
+    /**
+     * Test fixIncorrectBit
+     * 
+     * <p> Dodo finds and fixes the incorrect cell without using compass directions.
+     * 
+     *      Final situation:
+     *          <p> The error has been fixed
+     *          <p> Dodo is standing on the fixed cell
+     */
+    public void fixIncorrectBit(){
+        int incorrectRow = getIncorrectRowNr(); //search incorrect row
+        int incorrectCol = getIncorrectColNr(); //search incorrect column
+        if (incorrectRow == -1 || incorrectCol == -1){ //no error found
+            showCompliment("The world is not damaged!");
+            return; //stop the method
+        }
+        goToLocation(incorrectCol, incorrectRow); //go to the incorrect cell
+        if (onEgg()){ //extra egg, remove it
+            pickUpEgg();
+        } else { //missing egg is lay one
+            layEgg();
+        }
     }
 }
