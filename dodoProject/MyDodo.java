@@ -893,6 +893,9 @@ public class MyDodo extends Dodo
      *          <p> Dodo is standing on the fixed cell
      */
     public void fixIncorrectBit(){
+        getY();
+        getX();
+        goToLocation(0,0);
         int incorrectRow = getIncorrectRowNr(); //search incorrect row
         int incorrectCol = getIncorrectColNr(); //search incorrect column
         if (incorrectRow == -1 || incorrectCol == -1){ //no error found
