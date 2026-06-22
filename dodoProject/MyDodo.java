@@ -909,4 +909,34 @@ public class MyDodo extends Dodo
             layEgg();
         }
     }
+    
+    /**
+     * Test moveRandomly
+     * 
+     * <p> Dodo will move randomly
+     * <p> Dodo can not move more than 40 steps
+     * <p> Dodo can not walk against a fence
+     * <p> Dodo can not walk against the border
+     * 
+     *      Final situation:
+     *          <p> Dodo moves 40 steps randomly
+     *          <p> Dodo won't walk against a border nor fence
+     *          
+     */
+    
+    public void moveRandomly(){
+        int myNrOfStepsTaken = 0;
+        while(myNrOfStepsTaken <= Mauritius.MAXSTEPS){
+            setDirection(randomDirection());
+            System.out.println(randomDirection());
+            while(fenceAhead() || borderAhead()){
+                setDirection(randomDirection());
+            }
+            move();
+            myNrOfStepsTaken++;
+        }
+        if(Mauritius.MAXSTEPS == 40){
+            System.out.println("You have taken 40 steps");
+        }
+    }
 }
