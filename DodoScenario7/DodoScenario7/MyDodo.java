@@ -204,21 +204,36 @@ public class MyDodo extends Dodo
      */
 
     public void pickUpNearestEggInList(){
-        int shortestDistanceEgg;
-        int distanceX;
-        int distanceY;
-        int distance;
+        int shortestDistanceEgg = Integer.MAX_VALUE;
+        int distanceToEggX = 0;
+        int distanceToEggY = 0;
+        int distanceToEgg = 0;
 
         List<Egg> Eggs = (List<Egg>) getWorld().getObjects(Egg.class);
         if (Eggs.isEmpty()){
             showError("No Eggs Found");
             return;
         }
-        Eggs.nearestEggs = null;
-        while(){
-            if(){
-                nearestEggs = egg;
+        Egg nearestEgg = null;
+        for(Egg egg: Eggs){
+            distanceToEgg = Math.abs(getX() - egg.getX()) + Math.abs(getY() - egg.getY());
+            if(distanceToEgg < shortestDistanceEgg){
+                shortestDistanceEgg = distanceToEgg;
+                nearestEgg = egg;
             }
         }
+        goToLocation(nearestEgg.getX(), nearestEgg.getY());
+        if(onEgg()){
+            pickUpEgg();
+        }
+    }
+    
+    /**
+     * Test dodoRace
+     * 
+     */
+    
+    public void dodoRace(){
+        
     }
 }
