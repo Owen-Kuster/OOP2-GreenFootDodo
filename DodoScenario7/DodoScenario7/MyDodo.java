@@ -67,13 +67,13 @@ public class MyDodo extends Dodo
      * @param   int distance: the number of steps made
      */
     public void jump( int distance ) {
-        int nrStepsTaken = 0;               // set counter to 0
+        int nrStepsTaken = 0;
         while ( nrStepsTaken < distance ) { // check if more steps must be taken  
-            move();                         // take a step
+            move();                       // take a step
             nrStepsTaken++;                 // increment the counter
         }
     }
-
+ 
     /**
      * Places all the Egg objects in the world in a list.
      * 
@@ -122,15 +122,23 @@ public class MyDodo extends Dodo
             if (getX() < coordX){
                 setDirection(EAST);
                 move();
+                updateScores(Mauritius.MAXSTEPS - myNrOfStepsTaken, 0);
+                myNrOfStepsTaken ++;
             } else if (getX() > coordX){
                 setDirection(WEST);
                 move();
+                updateScores(Mauritius.MAXSTEPS - myNrOfStepsTaken, 0);
+                myNrOfStepsTaken ++;
             } else if (getY() < coordY){
                 setDirection(SOUTH);
                 move();
+                updateScores(Mauritius.MAXSTEPS - myNrOfStepsTaken, 0);
+                myNrOfStepsTaken ++;
             } else if (getY() > coordY){
                 setDirection(NORTH);
                 move();
+                updateScores(Mauritius.MAXSTEPS - myNrOfStepsTaken, 0);
+                myNrOfStepsTaken ++;
             }
         }
     }
@@ -172,7 +180,6 @@ public class MyDodo extends Dodo
      */
 
     public void moveRandomly(){
-        int myNrOfStepsTaken = 0;
         while(myNrOfStepsTaken <= Mauritius.MAXSTEPS){
             setDirection(randomDirection());
             System.out.println(randomDirection());
@@ -184,7 +191,7 @@ public class MyDodo extends Dodo
             myNrOfStepsTaken++;
         }
         if(Mauritius.MAXSTEPS == 40){
-            System.out.println("You have taken 40 steps");
+            showCompliment("You have done 40 steps!");
         }
     }
 
@@ -227,13 +234,16 @@ public class MyDodo extends Dodo
             pickUpEgg();
         }
     }
-    
+
     /**
      * Test dodoRace
      * 
      */
-    
+
     public void dodoRace(){
-        
+        List<Egg> Eggs = (List<Egg>) getWorld().getObjects(Egg.class);
+        while (myNrOfStepsTaken < Mauritius.MAXSTEPS || !Eggs.isEmpty()){
+            pickUpNearestEggInList();
+        }
     }
 }
